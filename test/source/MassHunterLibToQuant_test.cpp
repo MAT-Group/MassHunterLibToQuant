@@ -1,5 +1,3 @@
 #include "lib.hpp"
 
-int main(){
-
-}
+int main() {}

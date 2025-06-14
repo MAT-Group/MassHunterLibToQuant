@@ -1,41 +1,43 @@
 #include <iostream>
 #include <string>
 
-#include <boost/program_options.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/program_options.hpp>
 
 #include "lib.hpp"
 
-int main(int argc, char* argv[]){
-
-  std::string inputFile = "assets/test.mslibrary.xml";
-  std::string outputFile = "quantitative";
+int main(int argc, char* argv[])
+{
+  std::string inputFile;
+  std::string outputFile;
 
   boost::program_options::options_description desc("Allowed options");
-  desc.add_options()
-      ("help", "produce help message")
-      ("input,i",boost::program_options::value<std::string>(&inputFile),"input file (default: stdin)")
-      ("output,o",boost::program_options::value<std::string>(&outputFile),"output file (default: stdout)");
+  desc.add_options()("help", "produce help message")(
+      "input,i",
+      boost::program_options::value<std::string>(&inputFile),
+      "input file (default: stdin)")(
+      "output,o",
+      boost::program_options::value<std::string>(&outputFile),
+      "output file (default: stdout)");
 
   boost::program_options::variables_map vm;
 
   try {
     boost::program_options::store(
-        boost::program_options::parse_command_line(argc, argv, desc), 
-        vm
-    );
+        boost::program_options::parse_command_line(argc, argv, desc), vm);
     boost::program_options::notify(vm);
   } catch (const boost::program_options::error& e) {
-
     std::cerr << "Error parsing command line options: " << e.what() << "\n";
     std::cerr << desc << std::endl;
     return 1;
   }
 
+  if (vm.count("help")) {
+    std::cout << desc << std::endl;
+    return 0;
+  }
 
-  if (vm.count("help")) { std::cout << desc << std::endl; return 0; }
-
-  //std::istream* in = &std::cin;
+  // std::istream* in = &std::cin;
   std::istream* in = &std::cin;
   std::ifstream fileInput;
   if (!inputFile.empty()) {
@@ -55,7 +57,6 @@ int main(int argc, char* argv[]){
   }
 
   if (!outputFile.empty()) {
-
     try {
       fileOutput.open(outputFile + ".xml");
     } catch (const boost::filesystem::filesystem_error& e) {
@@ -67,7 +68,7 @@ int main(int argc, char* argv[]){
     }
 
     if (!fileOutput) {
-      std::cerr << "Failed to open output file: " << outputFile + ".m"  << "\n";
+      std::cerr << "Failed to open output file: " << outputFile + ".m" << "\n";
       return 1;
     }
     out = &fileOutput;
