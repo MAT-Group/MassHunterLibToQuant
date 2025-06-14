@@ -53,6 +53,11 @@ jobs:
       run: sudo apt-get update -q
         && sudo apt-get install lcov -q -y
 
+    - name: Install Boost
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libboost-all-dev
+
     - name: Configure
       run: cmake --preset=ci-coverage
 
@@ -81,6 +86,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+
+    - name: Install Boost
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libboost-all-dev
 
     - name: Configure
       run: cmake --preset=ci-sanitize
@@ -121,6 +131,11 @@ jobs:
         sudo update-alternatives --install
         /usr/bin/clang-tidy clang-tidy
         /usr/bin/clang-tidy-18 180
+
+    - name: Install Boost
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libboost-all-dev
 
     - name: Setup MultiToolTask
       if: matrix.os == 'windows-2022'
@@ -179,6 +194,11 @@ jobs:
     - name: Install Doxygen
       run: sudo apt-get update -q
         && sudo apt-get install doxygen -q -y
+
+    - name: Install Boost
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libboost-all-dev
 
     - name: Build docs
       run: cmake "-DPROJECT_SOURCE_DIR=$PWD" "-DPROJECT_BINARY_DIR=$PWD/build"
