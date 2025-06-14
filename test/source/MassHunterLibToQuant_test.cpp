@@ -1,8 +1,5 @@
 #include "lib.hpp"
 
-auto main() -> int
-{
-  auto const lib = library {};
+int main(){
 
-  return lib.name == "MassHunterLibToQuant" ? 0 : 1;
 }

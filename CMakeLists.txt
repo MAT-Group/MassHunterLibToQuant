@@ -13,6 +13,10 @@ project(
 include(cmake/project-is-top-level.cmake)
 include(cmake/variables.cmake)
 
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
+
 # ---- Declare library ----
 
 add_library(
@@ -28,6 +32,18 @@ target_include_directories(
 
 target_compile_features(MassHunterLibToQuant_lib PUBLIC cxx_std_20)
 
+# ---- Add Dependencies ----
+
+set(Boost_INCLUDE_DIR "C:/Boost/boost_1_87_0")
+find_package(Boost REQUIRED COMPONENTS filesystem program_options)
+target_link_libraries(
+    MassHunterLibToQuant_lib 
+    PUBLIC 
+    Boost::boost
+    Boost::filesystem
+    Boost::program_options
+)
+
 # ---- Declare executable ----
 
 add_executable(MassHunterLibToQuant_exe source/main.cpp)
@@ -40,6 +56,8 @@ target_compile_features(MassHunterLibToQuant_exe PRIVATE cxx_std_20)
 target_link_libraries(MassHunterLibToQuant_exe PRIVATE MassHunterLibToQuant_lib)
 
 # ---- Install rules ----
+
+file(COPY assets DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Debug)
 
 if(NOT CMAKE_SKIP_INSTALL_RULES)
   include(cmake/install-rules.cmake)
