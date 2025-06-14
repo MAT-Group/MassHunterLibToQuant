@@ -22,6 +22,21 @@ jobs:
     - name: Install codespell
       run: pip3 install codespell
 
+    - name: Install boost
+      uses: MarkusJx/install-boost@v2
+      id: install-boost
+      with:
+        # REQUIRED: Specify the required boost version
+        # A list of supported versions can be found here:
+        # https://github.com/MarkusJx/prebuilt-boost/blob/main/versions-manifest.json
+        boost_version: 1.88.0
+        # OPTIONAL: Specify a custon install location
+        # boost_install_dir: C:\some_directory
+        # OPTIONAL: Specify a platform version
+        # platform_version: 2019
+        # OPTIONAL: Specify a toolset
+        # toolset: msvc
+
     - name: Lint
       run: cmake -D FORMAT_COMMAND=clang-format-18 -P cmake/lint.cmake
 
