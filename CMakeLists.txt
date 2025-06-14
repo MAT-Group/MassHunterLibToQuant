@@ -35,6 +35,9 @@ target_compile_features(MassHunterLibToQuant_lib PUBLIC cxx_std_20)
 # ---- Add Dependencies ----
 cmake_policy(SET CMP0167 OLD)
 # set(Boost_INCLUDE_DIR "C:/Boost/boost_1_87_0")
+set(Boost_USE_STATIC_LIBS OFF)
+set(Boost_USE_MULTITHREADED ON)
+set(Boost_USE_STATIC_RUNTIME OFF)
 find_package(Boost REQUIRED COMPONENTS filesystem program_options)
 target_link_libraries(
     MassHunterLibToQuant_lib 

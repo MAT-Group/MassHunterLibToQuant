@@ -22,11 +22,10 @@ jobs:
     - name: Install codespell
       run: pip3 install codespell
 
-    - name: Install boost
-      uses: MarkusJx/install-boost@v2
-      id: install-boost
-      with:
-        boost_version: 1.88.0
+    - name: Install Boost
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libboost-all-dev
 
     - name: Lint
       run: cmake -D FORMAT_COMMAND=clang-format-18 -P cmake/lint.cmake
