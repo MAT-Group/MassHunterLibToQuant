@@ -33,8 +33,8 @@ target_include_directories(
 target_compile_features(MassHunterLibToQuant_lib PUBLIC cxx_std_20)
 
 # ---- Add Dependencies ----
-cmake_policy(SET CMP0167 OLD)
-# set(Boost_INCLUDE_DIR "C:/Boost/boost_1_87_0")
+#cmake_policy(SET CMP0167 OLD)
+set(Boost_INCLUDE_DIR "C:/Boost/boost_1_87_0")
 set(Boost_USE_STATIC_LIBS OFF)
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
@@ -57,6 +57,17 @@ set_property(TARGET MassHunterLibToQuant_exe PROPERTY OUTPUT_NAME MassHunterLibT
 target_compile_features(MassHunterLibToQuant_exe PRIVATE cxx_std_20)
 
 target_link_libraries(MassHunterLibToQuant_exe PRIVATE MassHunterLibToQuant_lib)
+
+# ---- Library to CSV of ions ----
+
+add_executable(MassHunterLibToCSV_exe source/tocsv.cpp)
+add_executable(MassHunterLibToCSV::exe ALIAS MassHunterLibToCSV_exe)
+
+set_property(TARGET MassHunterLibToCSV_exe PROPERTY OUTPUT_NAME MassHunterLibToCSV)
+
+target_compile_features(MassHunterLibToCSV_exe PRIVATE cxx_std_20)
+
+target_link_libraries(MassHunterLibToCSV_exe PRIVATE MassHunterLibToQuant_lib)
 
 # ---- Install rules ----
 

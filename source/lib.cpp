@@ -1,6 +1,36 @@
 #include "lib.hpp"
 
 #include <boost/property_tree/xml_parser.hpp>
+#include "base64.hpp"
+
+#include <algorithm>
+#include <utility>
+#include <iostream>
+#include <cstdint>
+
+template<std::integral T>
+constexpr T byteswap(T value) noexcept
+{
+    static_assert(std::has_unique_object_representations_v<T>, 
+                  "T may not have padding bits");
+    auto value_representation = std::bit_cast<std::array<std::byte, sizeof(T)>>(value);
+    std::ranges::reverse(value_representation);
+    return std::bit_cast<T>(value_representation);
+}
+
+template<typename T>
+std::vector<T> decodeBase64Binary(std::string input){
+  std::string decoded = base64::from_base64(input);
+  std::vector<T> decoded_floats;
+  decoded_floats.reserve(decoded.size() / sizeof(T));
+
+  for (size_t i = 0; i + sizeof(T) <= decoded.size(); i += sizeof(T)) {
+    T value;
+    std::memcpy(&value, &decoded[i], sizeof(T));
+    decoded_floats.push_back(value);
+  }
+  return decoded_floats;
+}
 
 bool MHLTQ_NAMESPACE::loadLibrary(std::istream& in, Library& output)
 {
@@ -40,6 +70,22 @@ bool MHLTQ_NAMESPACE::loadLibrary(std::istream& in, Library& output)
       spec.CompoundID = child.second.get<unsigned int>("CompoundID");
       spec.SpectrumID = child.second.get<unsigned int>("SpectrumID");
       spec.BasePeakMZ = child.second.get<float>("BasePeakMZ", 0.0f);
+
+      try {
+        spec.MzValues = decodeBase64Binary<double>(
+            child.second.get<std::string>("MzValues"));
+        spec.AbundanceValues = decodeBase64Binary<double>(
+            child.second.get<std::string>("AbundanceValues"));
+
+      } catch (const std::exception& e) {
+        //throw std::runtime_error(
+        //    "Failed to decode MzValues or AbundanceValues: "
+        //    + std::string(e.what()));
+        std::cerr << "Failed to decode for " + std::to_string(spec.CompoundID) + ". " + e.what()
+                  << std::endl;
+        continue;
+      }
+
 
       unsigned int compoundID = spec.CompoundID;
       if (output.Compounds.find(compoundID) != output.Compounds.end()) {
@@ -229,11 +275,9 @@ MHLTQ_NAMESPACE::QuantitationDataSet::QuantitationDataSet(
     const Library& library)
     : QuantitationDataSet()
 {
-  // int count = 0;
+
   for (const auto& compound : library.Compounds) {
     addTarget(compound.second);
-    //  count++;
-    // if (count > 3) break;
   }
 }
 
@@ -247,11 +291,9 @@ void MHLTQ_NAMESPACE::QuantitationDataSet::addTarget(const Compound& compound)
       .CompoundID = compound.CompoundID,
       .CompoundName = compound.CompoundName,
       .MZ = compound.Spectra.begin()
-                ->second.BasePeakMZ,  // Assuming MZ is set to RetentionIndex
-      .RetentionTime =
-          compound.RetentionTimeRTL,  // Assuming RT is set to RetentionTimeRTL
-      .Transition = compound.Spectra.begin()
-                        ->second.BasePeakMZ,  // Default value, can be set later
+                ->second.BasePeakMZ,
+      .RetentionTime = compound.RetentionTimeRTL,
+      .Transition = compound.Spectra.begin()->second.BasePeakMZ,
   };
 
   Targets.push_back(target);
@@ -338,8 +380,76 @@ MHLTQ_NAMESPACE::QuantitationDataSet::operator boost::property_tree::ptree()
 
   for (const auto& target : Targets) {
     ptree.add_child("QuantitationDataSet.TargetCompound", target);
-    // break; // short circuit
   }
 
   return ptree;
+}
+
+template<typename T1, typename T2>
+std::vector<std::pair<T1, T2>> top_n_zip(const std::vector<T1>& v1,
+                                         const std::vector<T2>& v2,
+                                         size_t n,
+                                         bool descending = true)
+{
+  size_t len = std::min(v1.size(), v2.size());
+  std::vector<std::pair<T1, T2>> zipped;
+
+  for (size_t i = 0; i < len; ++i) {
+    zipped.emplace_back(v1[i], v2[i]);
+  }
+
+  // Sort by first element of pair
+  std::sort(zipped.begin(),
+            zipped.end(),
+            [descending](const auto& a, const auto& b)
+            { return descending ? a.first > b.first : a.first < b.first; });
+
+  // Take top n (or all if n is too big)
+  if (n < zipped.size()) {
+    zipped.resize(n);
+  }
+
+  return zipped;
+}
+
+std::string MHLTQ_NAMESPACE::Library::tocsv()
+{
+  // Make header
+
+  std::string output;
+
+  for (const auto& compound : Compounds) {
+    const Compound& comp = compound.second;
+  
+
+    // Add compound data to CSV
+    std::string csvLine;
+    csvLine += std::to_string(comp.CompoundID) + ",";
+    csvLine += std::to_string(comp.RetentionIndex) + ",";
+
+
+    for (const auto& spectrum : comp.Spectra) {
+      const Spectrum& spec = spectrum.second;
+
+      auto top_pairs = top_n_zip(spec.AbundanceValues, spec.MzValues, 5);
+
+      for (const auto& p : top_pairs) {
+        csvLine += std::to_string(p.second) + ",";
+      }
+
+
+      // csvLine += join(spec.MzValues, ",") + ",";
+      //csvLine += std::to_string(spec.LibraryID) + ",";
+      //csvLine += std::to_string(spec.CompoundID) + ",";
+      //csvLine += std::to_string(spec.SpectrumID) + ",";
+      break;
+    }
+
+
+
+    output += csvLine + "\n";
+
+  }
+
+  return output;
 }

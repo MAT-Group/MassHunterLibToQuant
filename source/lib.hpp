@@ -24,6 +24,8 @@ struct Spectrum
   unsigned int CompoundID;
   unsigned int SpectrumID;
   float BasePeakMZ;
+  std::vector<double> MzValues;  // Placeholder for actual spectrum data
+  std::vector<double> AbundanceValues;  // Placeholder for actual spectrum data
 };
 
 struct Compound
@@ -47,9 +49,12 @@ struct Library
   unsigned int LibraryID;
   bool AccurateMass;
   std::map<unsigned int, Compound> Compounds;
+
+  std::string tocsv();
 };
 
 bool loadLibrary(std::istream& in, Library& output);
+
 
 struct Parameter
 {

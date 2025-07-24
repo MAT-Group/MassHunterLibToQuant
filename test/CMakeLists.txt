@@ -6,7 +6,7 @@ project(MassHunterLibToQuantTests LANGUAGES CXX)
 
 # ---- Tests ----
 
-add_executable(MassHunterLibToQuant_test source/MassHunterLibToQuant_test.cpp)
+add_executable(MassHunterLibToQuant_test source/MassHunterLibToQuant_test.cpp "source/LibToCSV_test.cpp")
 target_link_libraries(MassHunterLibToQuant_test PRIVATE MassHunterLibToQuant_lib)
 target_compile_features(MassHunterLibToQuant_test PRIVATE cxx_std_20)
 
