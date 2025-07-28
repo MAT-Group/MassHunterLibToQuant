@@ -6,6 +6,8 @@ This is the MassHunterLibToQuant project.
 
 See the [BUILDING](BUILDING.md) document.
 
+Install CMake, Boost lib
+
 # Contributing
 
 See the [CONTRIBUTING](CONTRIBUTING.md) document.
