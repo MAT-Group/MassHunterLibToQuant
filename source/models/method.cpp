@@ -1,0 +1,259 @@
+
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/xml_parser.hpp>
+
+#include "models/method.hpp"
+
+namespace LIB_NAMESPACE
+{
+
+Parameter::operator boost::property_tree::ptree() const
+{
+  boost::property_tree::ptree ptree;
+  ptree.put("<xmlattr>.id", attrs.id);
+  ptree.put("DisplayName", DisplayName);
+  ptree.put("Value", Value);
+
+  if (Default) {
+    ptree.put("Default", *Default);
+  }
+
+  if (Limits) {
+    boost::property_tree::ptree limits_ptree;
+    limits_ptree.put("Minimum.<xmlattr>.type", Limits->Minimum.attr.type);
+    limits_ptree.put("Minimum", Limits->Minimum.value);
+    limits_ptree.put("Maximum.<xmlattr>.type", Limits->Maximum.attr.type);
+    limits_ptree.put("Maximum", Limits->Maximum.value);
+    ptree.add_child("Limits", limits_ptree);
+  }
+
+  if (XUnits) {
+    ptree.put("Units", *XUnits);
+  }
+
+  if (DataValueType) {
+    ptree.put("DataValueType", *DataValueType);
+  }
+
+  if (PrecisionType) {
+    ptree.put("PrecisionType", *PrecisionType);
+  }
+
+  if (PrecisionDigits) {
+    ptree.put("PrecisionDigits", *PrecisionDigits);
+  }
+
+  if (ConversionSupport) {
+    ptree.put("ConversionSupport", *ConversionSupport);
+  }
+
+  return ptree;
+}
+
+IntegrationParameters::ParameterSet_T::operator boost::property_tree::ptree()
+    const
+{
+  boost::property_tree::ptree ptree;
+  ptree.put("ParameterSet.<xmlattr>.usagekey", attrs.usageKey);
+  ptree.put("ParameterSet.<xmlattr>.assembly", attrs.assembly);
+  ptree.put("ParameterSet.<xmlattr>.class", attrs.class_);
+
+  ptree.add_child("ParameterSet.Parameter", DataPointSampling);
+  ptree.add_child("ParameterSet.Parameter", Smoothing);
+  ptree.add_child("ParameterSet.Parameter", DetectionFiltering);
+  ptree.add_child("ParameterSet.Parameter", StartThreshold);
+  ptree.add_child("ParameterSet.Parameter", StopThreshold);
+  ptree.add_child("ParameterSet.Parameter", PeakLocation);
+  ptree.add_child("ParameterSet.Parameter", BaselineReset);
+  ptree.add_child("ParameterSet.Parameter", BaselineValley);
+  ptree.add_child("ParameterSet.Parameter", BaselinePreference);
+  return ptree;
+}
+
+void EncodeParameterSet(const IntegrationParameters::ParameterSet_T& input,
+                        std::string& output)
+{
+  boost::property_tree::ptree ptree = input;
+
+  std::ostringstream oss;
+  boost::property_tree::write_xml(
+      oss,
+      ptree,
+      boost::property_tree::xml_writer_make_settings<std::string>(' ', 4));
+
+  output = oss.str();
+}
+
+TargetCompound::operator boost::property_tree::ptree() const
+{
+  boost::property_tree::ptree ptree;
+
+  ptree.put("BatchID", BatchID);
+  ptree.put("SampleID", SampleID);
+  ptree.put("CompoundID", CompoundID);
+  ptree.put("AccuracyLimitMultiplierLOQ", AccuracyLimitMultiplierLOQ);
+  ptree.put("AccuracyMaximumPercentDeviation", AccuracyMaximumPercentDeviation);
+  ptree.put("CompoundName", CompoundName);
+  ptree.put("CompoundType", CompoundType);
+  ptree.put("ConcentrationUnits", ConcentrationUnits);
+  ptree.put("CurveFit", CurveFit);
+  ptree.put("CurveFitOrigin", CurveFitOrigin);
+  ptree.put("CurveFitWeight", CurveFitWeight);
+
+  std::string EncodedIntegrationParameters;
+  EncodeParameterSet(IntegrationParameters.ParameterSet,
+                     EncodedIntegrationParameters);
+  ptree.add("IntegrationParameters", EncodedIntegrationParameters);
+
+  ptree.put("IntegrationParametersModified", IntegrationParametersModified);
+  ptree.put("Integrator", Integrator);
+  ptree.put("IonPolarity", IonPolarity);
+  ptree.put("ISTDFlag", ISTDFlag);
+  ptree.put("LeftRetentionTimeDelta", LeftRetentionTimeDelta);
+  ptree.put("MaximumNumberOfHits", MaximumNumberOfHits);
+  ptree.put("Multiplier", Multiplier);
+  ptree.put("MZ", MZ);
+  ptree.put("MZExtractionWindowFilterLeft", MZExtractionWindowFilterLeft);
+  ptree.put("MZExtractionWindowFilterRight", MZExtractionWindowFilterRight);
+  ptree.put("MZExtractionWindowUnits", MZExtractionWindowUnits);
+  ptree.put("NoiseAlgorithmType", NoiseAlgorithmType);
+  ptree.put("NoiseOfRawSignal", NoiseOfRawSignal);
+  ptree.put("NoiseReference", NoiseReference);
+  ptree.put("NoiseStandardDeviationMultiplier",
+            NoiseStandardDeviationMultiplier);
+  ptree.put("PeakFilterThreshold", PeakFilterThreshold);
+  ptree.put("PeakFilterThresholdValue", PeakFilterThresholdValue);
+  ptree.put("PeakSelectionCriterion", PeakSelectionCriterion);
+  ptree.put("PrimaryHitPeakID", PrimaryHitPeakID);
+  ptree.put("QuantitateByHeight", QuantitateByHeight);
+  ptree.put("RetentionTime", RetentionTime);
+  ptree.put("RetentionTimeDeltaUnits", RetentionTimeDeltaUnits);
+  ptree.put("RetentionTimeWindow", RetentionTimeWindow);
+  ptree.put("RetentionTimeWindowUnits", RetentionTimeWindowUnits);
+  ptree.put("RightRetentionTimeDelta", RightRetentionTimeDelta);
+  ptree.put("ScanType", ScanType);
+  ptree.put("SelectedMZ", SelectedMZ);
+  ptree.put("SignalType", SignalType);
+  ptree.put("Smoothing", Smoothing);
+  ptree.put("SmoothingFunctionWidth", SmoothingFunctionWidth);
+  ptree.put("SmoothingGaussianWidth", SmoothingGaussianWidth);
+  ptree.put("SpectrumExtractionOverride", SpectrumExtractionOverride);
+  ptree.put("SpectrumScanInclusion", SpectrumScanInclusion);
+  ptree.put("ThresholdNumberOfPeaks", ThresholdNumberOfPeaks);
+  ptree.put("TimeReferenceFlag", TimeReferenceFlag);
+  ptree.put("TimeSegment", TimeSegment);
+  ptree.put("Transition", Transition);
+  ptree.put("UncertaintyRelativeOrAbsolute", UncertaintyRelativeOrAbsolute);
+
+  return ptree;
+}
+
+QuantitationDataSet::QuantitationDataSet(const Library& library)
+    : QuantitationDataSet()
+{
+  for (const auto& compound : library.Compounds) {
+    addTarget(compound.second);
+  }
+}
+
+void QuantitationDataSet::addTarget(const Compound& compound) {
+  if (compound.Spectra.empty()) {
+    throw;
+  }
+
+  TargetCompound target = {
+      .CompoundID = compound.CompoundID,
+      .CompoundName = compound.CompoundName,
+      .MZ = compound.Spectra.begin()->second.BasePeakMZ,
+      .RetentionTime = compound.RetentionTimeRTL,
+      .Transition = compound.Spectra.begin()->second.BasePeakMZ,
+  };
+
+  Targets.push_back(target);
+}
+
+QuantitationDataSet::operator boost::property_tree::ptree() const {
+  boost::property_tree::ptree ptree;
+
+  ptree.put("QuantitationDataSet.<xmlattr>.SchemaVersion", attr.SchemaVersion);
+  ptree.put("QuantitationDataSet.<xmlattr>.DataVersion", attr.DataVersion);
+  ptree.put("QuantitationDataSet.<xmlattr>.BatchState", attr.BatchState);
+  ptree.put("QuantitationDataSet.<xmlattr>.ReferenceWindow",
+            attr.ReferenceWindow);
+  ptree.put("QuantitationDataSet.<xmlattr>.ReferenceWindowPercentOrMinutes",
+            attr.ReferenceWindowPercentOrMinutes);
+  ptree.put("QuantitationDataSet.<xmlattr>.NonReferenceWindow",
+            attr.NonReferenceWindow);
+  ptree.put("QuantitationDataSet.<xmlattr>.NonReferenceWindowPercentOrMinutes",
+            attr.NonReferenceWindowPercentOrMinutes);
+  ptree.put("QuantitationDataSet.<xmlattr>.CorrelationWindow",
+            attr.CorrelationWindow);
+  ptree.put("QuantitationDataSet.<xmlattr>.ApplyMultiplierTarget",
+            attr.ApplyMultiplierTarget);
+  ptree.put("QuantitationDataSet.<xmlattr>.ApplyMultiplierSurrogate",
+            attr.ApplyMultiplierSurrogate);
+  ptree.put("QuantitationDataSet.<xmlattr>.ApplyMultiplierMatrixSpike",
+            attr.ApplyMultiplierMatrixSpike);
+  ptree.put("QuantitationDataSet.<xmlattr>.ApplyMultiplierISTD",
+            attr.ApplyMultiplierISTD);
+  ptree.put("QuantitationDataSet.<xmlattr>.IgnorePeaksNotFound",
+            attr.IgnorePeaksNotFound);
+  ptree.put("QuantitationDataSet.<xmlattr>.RelativeISTD", attr.RelativeISTD);
+  ptree.put("QuantitationDataSet.<xmlattr>.AuditTrail", attr.AuditTrail);
+  ptree.put("QuantitationDataSet.<xmlattr>.LibraryPathFileName",
+            attr.LibraryPathFileName);
+  ptree.put("QuantitationDataSet.<xmlattr>.LibraryMethodPathFileName",
+            attr.LibraryMethodPathFileName);
+  ptree.put("QuantitationDataSet.<xmlattr>.RefLibraryPathFileName",
+            attr.RefLibraryPathFileName);
+  ptree.put("QuantitationDataSet.<xmlattr>.RefLibraryPatternPathFileName",
+            attr.RefLibraryPatternPathFileName);
+  ptree.put("QuantitationDataSet.<xmlattr>.CCMaximumElapsedTimeInHours",
+            attr.CCMaximumElapsedTimeInHours);
+  ptree.put("QuantitationDataSet.<xmlattr>.BracketingType",
+            attr.BracketingType);
+  ptree.put("QuantitationDataSet.<xmlattr>.StandardAddition",
+            attr.StandardAddition);
+  ptree.put("QuantitationDataSet.<xmlattr>.DynamicBackgroundSubtraction",
+            attr.DynamicBackgroundSubtraction);
+  ptree.put("QuantitationDataSet.<xmlattr>.BatchName", attr.BatchName);
+  ptree.put("QuantitationDataSet.<xmlattr>.BatchDataPathFileName",
+            attr.BatchDataPathFileName);
+  ptree.put("QuantitationDataSet.<xmlattr>.DAMethodPathFileNameOrigin",
+            attr.DAMethodPathFileNameOrigin);
+  ptree.put("QuantitationDataSet.<xmlattr>.AnalystName", attr.AnalystName);
+  ptree.put("QuantitationDataSet.<xmlattr>.ReportGeneratorName",
+            attr.ReportGeneratorName);
+  ptree.put("QuantitationDataSet.<xmlattr>.AnalysisTimeStamp",
+            attr.AnalysisTimeStamp);
+  ptree.put("QuantitationDataSet.<xmlattr>.DAMethodLastAppliedTimeStamp",
+            attr.DAMethodLastAppliedTimeStamp);
+  ptree.put("QuantitationDataSet.<xmlattr>.CalibrationLastUpdatedTimeStamp",
+            attr.CalibrationLastUpdatedTimeStamp);
+  ptree.put("QuantitationDataSet.<xmlattr>.ReportGenerationStartedTimeStamp",
+            attr.ReportGenerationStartedTimeStamp);
+  ptree.put("QuantitationDataSet.<xmlattr>.ReportResultsDataPathFileName",
+            attr.ReportResultsDataPathFileName);
+  ptree.put("QuantitationDataSet.<xmlattr>.AnalyzeQuantVersion",
+            attr.AnalyzeQuantVersion);
+  ptree.put("QuantitationDataSet.<xmlattr>.ReportQuantVersion",
+            attr.ReportQuantVersion);
+  ptree.put("QuantitationDataSet.<xmlattr>.ComplianceName",
+            attr.ComplianceName);
+  ptree.put("QuantitationDataSet.<xmlattr>.ComplianceVersion",
+            attr.ComplianceVersion);
+  ptree.put("QuantitationDataSet.<xmlattr>.ComplianceServer",
+            attr.ComplianceServer);
+  ptree.put("QuantitationDataSet.<xmlattr>.FeatureDetection",
+            attr.FeatureDetection);
+  ptree.put("QuantitationDataSet.<xmlattr>.HashCode", attr.HashCode);
+  ptree.put("QuantitationDataSet.<xmlattr>.xmlns", attr.xmlns);
+
+  for (const auto& target : Targets) {
+    ptree.add_child("QuantitationDataSet.TargetCompound", target);
+  }
+
+  return ptree;
+}
+
+}  // namespace LIB_NAMESPACE

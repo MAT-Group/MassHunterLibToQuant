@@ -17,12 +17,15 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 
+include_directories(
+  ${CMAKE_SOURCE_DIR}/include
+)
+
 # ---- Declare library ----
 
 add_library(
     MassHunterLibToQuant_lib OBJECT
-    source/lib.cpp
-)
+ "source/models/library.cpp" "source/models/compound.cpp" "source/models/spectrum.cpp" "source/models/method.cpp")
 
 target_include_directories(
     MassHunterLibToQuant_lib ${warning_guard}
@@ -49,25 +52,7 @@ target_link_libraries(
 
 # ---- Declare executable ----
 
-add_executable(MassHunterLibToQuant_exe source/main.cpp)
-add_executable(MassHunterLibToQuant::exe ALIAS MassHunterLibToQuant_exe)
-
-set_property(TARGET MassHunterLibToQuant_exe PROPERTY OUTPUT_NAME MassHunterLibToQuant)
-
-target_compile_features(MassHunterLibToQuant_exe PRIVATE cxx_std_20)
-
-target_link_libraries(MassHunterLibToQuant_exe PRIVATE MassHunterLibToQuant_lib)
-
-# ---- Library to CSV of ions ----
-
-add_executable(MassHunterLibToCSV_exe source/tocsv.cpp)
-add_executable(MassHunterLibToCSV::exe ALIAS MassHunterLibToCSV_exe)
-
-set_property(TARGET MassHunterLibToCSV_exe PROPERTY OUTPUT_NAME MassHunterLibToCSV)
-
-target_compile_features(MassHunterLibToCSV_exe PRIVATE cxx_std_20)
-
-target_link_libraries(MassHunterLibToCSV_exe PRIVATE MassHunterLibToQuant_lib)
+add_subdirectory(apps)
 
 # ---- Install rules ----
 

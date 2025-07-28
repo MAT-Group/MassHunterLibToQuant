@@ -1,5 +1,5 @@
 install(
-    TARGETS MassHunterLibToQuant_exe
+    TARGETS LibraryToQuantMethod_exe LibraryToCSV_exe
     RUNTIME COMPONENT MassHunterLibToQuant_Runtime
 )
 

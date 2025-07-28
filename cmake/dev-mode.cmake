@@ -7,10 +7,10 @@ endif()
 
 add_custom_target(
     run-exe
-    COMMAND MassHunterLibToQuant_exe
+    COMMAND LibraryToQuantMethod_exe
     VERBATIM
 )
-add_dependencies(run-exe MassHunterLibToQuant_exe)
+add_dependencies(run-exe LibraryToQuantMethod_exe)
 
 option(BUILD_MCSS_DOCS "Build documentation using Doxygen and m.css" OFF)
 if(BUILD_MCSS_DOCS)
