@@ -10,9 +10,11 @@
 #include "models/library.hpp"
 #include "models/method.hpp"
 
-float score(const LIB_NAMESPACE::Compound& compound, std::vector<LIB_NAMESPACE::Spectrum::tMzValue> kernel) {
+double score(const LIB_NAMESPACE::Compound& compound,
+             std::vector<LIB_NAMESPACE::Spectrum::tMzValue> kernel)
+{
 
-  float score = 0;
+  double score = 0;
 
   for (const auto& [id, spectrum] : compound.Spectra) {
 
@@ -23,7 +25,7 @@ float score(const LIB_NAMESPACE::Compound& compound, std::vector<LIB_NAMESPACE::
            ++i)
       {
         if (abs(spectrum.MzValues[i] - mz) < 0.1) {
-          score += spectrum.AbundanceValues[i] / 10000;
+          score += (spectrum.AbundanceValues[i] / 10000);
         }
 
       }

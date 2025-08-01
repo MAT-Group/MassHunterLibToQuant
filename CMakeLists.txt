@@ -25,7 +25,7 @@ include_directories(
 
 add_library(
     MassHunterLibToQuant_lib OBJECT
- "source/models/library.cpp" "source/models/compound.cpp" "source/models/spectrum.cpp" "source/models/method.cpp")
+ "source/models/library.cpp" "source/models/compound.cpp" "source/models/spectrum.cpp" "source/models/method.cpp" "source/base64.cpp")
 
 target_include_directories(
     MassHunterLibToQuant_lib ${warning_guard}

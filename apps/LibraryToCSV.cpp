@@ -42,14 +42,14 @@ std::vector<std::pair<T1, T2>> top_n_zip(const std::vector<T1>& v1,
 std::string convert(const LIB_NAMESPACE::Library& lib) {
   std::string output;
 
-    for (const auto& [id, compound] : lib.Compounds) {
+    for (const auto& [compound_id, compound] : lib.Compounds) {
 
     // Add compound data to CSV
     std::string csvLine;
     csvLine += std::to_string(compound.CompoundID) + ",";
     csvLine += std::to_string(compound.RetentionIndex) + ",";
 
-    for (const auto& [id, spectrum] : compound.Spectra) {
+    for (const auto& [spectrum_id, spectrum] : compound.Spectra) {
 
       auto top_pairs =
           top_n_zip(spectrum.AbundanceValues, spectrum.MzValues, 5);

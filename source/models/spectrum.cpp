@@ -14,7 +14,7 @@ namespace LIB_NAMESPACE
     template<typename T>
     std::vector<T> decodeBase64Binary(std::string input)
     {
-      std::string decoded = base64::from_base64(input);
+      std::string decoded = base64::decode(input);
       std::vector<T> decoded_floats;
       decoded_floats.reserve(decoded.size() / sizeof(T));
 
@@ -41,7 +41,7 @@ Spectrum::Spectrum(boost::property_tree::ptree tree)
     AbundanceValues = detail::decodeBase64Binary<double>(
         tree.get<std::string>("AbundanceValues"));
   
-  } catch (const std::exception& e) {
+  } catch (const std::exception&) {
     //throw std::runtime_error("Failed to decode MzValues or AbundanceValues: "
     //                         + std::string(e.what()));
 
